@@ -49,11 +49,9 @@ function importPrivateKey(pem) {
 
 
 	async function generateQR() {
-		console.log(privateKey)
-
 		const enc = new TextEncoder(); // always utf-8
 
-		const key = await importPrivateKey(privateKey);
+		const key = await importPrivateKey(privateKey.trim());
 
 		const json = JSON.stringify({
 			certificateNo,
@@ -75,14 +73,17 @@ function importPrivateKey(pem) {
 
 		const finalData = btoa(String.fromCharCode(...new Uint8Array(data)));
 
+		url = `${urlToVerify}?token=${ encodeURIComponent(finalData) }`
+
 		const qr = new QRious({
 			element: canvasElement,
-			value: `${urlToVerify}?token=${ encodeURIComponent(finalData) }`,
+			value: url,
 			size: 512
 		});
 	}
 
 	let canvasElement;
+	let url;
 	let urlToVerify = 'https://dypatilmedicalkop.org/verify-certifcate';
 </script>
 
@@ -104,6 +105,12 @@ function importPrivateKey(pem) {
 </form>
 
 <canvas bind:this={canvasElement}></canvas>
+
+<br>
+
+{#if url}
+<a href={url}>Link for QR</a>
+{/if}
 
 <style>
 	.flex {
