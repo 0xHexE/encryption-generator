@@ -46,8 +46,6 @@ function importPrivateKey(pem) {
     ["sign"]
   );
 }
-
-
 	async function generateQR() {
 		const enc = new TextEncoder(); // always utf-8
 
@@ -62,18 +60,23 @@ function importPrivateKey(pem) {
 			endDate,
 		});
 
+		const db = enc.encode(json)
+
 		const data = await window.crypto.subtle.sign(
 			{
         name: "RSA-PSS",
         saltLength: 32,
       },
       key,
-      enc.encode(json)
+      db
 		);
 
 		const finalData = btoa(String.fromCharCode(...new Uint8Array(data)));
 
-		url = `${urlToVerify}?token=${ encodeURIComponent(finalData) }`
+		url = `${urlToVerify}?signature=${ encodeURIComponent(finalData) }&data=${ encodeURIComponent(json) }`
+
+		console.log(encodeURIComponent(finalData));
+		console.log(encodeURIComponent(json));
 
 		const qr = new QRious({
 			element: canvasElement,
@@ -109,7 +112,7 @@ function importPrivateKey(pem) {
 <br>
 
 {#if url}
-<a href={url}>Link for QR</a>
+	<a href={url}>Link for QR</a>
 {/if}
 
 <style>
